@@ -37,7 +37,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const announcements = [
         {id: 'info2', type: 'info', message:"この走行位置は2025年度改正のダイヤに準拠しています。"},
         {id: 'info3', type: 'info', message:'遅延情報は、複数列車が10分以上遅延したときに反映されます。'},
-    ];
+        {id: 'stop1', type: 'suspended', message:'広島・山口地区(山陰本線、山陽線)では、明日（７月１８日）の早朝から大雨が見込まれています。このため、列車の遅れや運転取り止め、急遽の行先変更がでる可能性があります。※運転を取り止めた場合、代行輸送は行いません。※その他の線区においても、列車の遅れや運転取り止め、急遽の行先変更がでる可能性があります。'},
+        ];
     const operationalIssues = [
         //{ trainId: '449D', stationId: 6, reason: '車両の確認' }
     ];
