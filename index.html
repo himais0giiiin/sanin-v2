@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>列車運行状況シミュレーター (山陰本線)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>山陰本線 列車運行状況 (下関 - 滝部)</h1>
+            <div id="current-time">--:--:--</div>
+        </header>
+        
+        <div id="announcements-board"></div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-icon up"></div>
+                <span>上り (滝部方面)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon down"></div>
+                <span>下り (下関方面)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon waiting"></div>
+                <span>停車中(定刻)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon stopped">×</div>
+                <span>停車中(支障)</span>
+            </div>
+        </div>
+        <div id="train-guide-wrapper">
+            <div id="track"></div>
+            <div id="station-list"></div>
+            <div id="suspension-list"></div>
+            <div id="train-list"></div>
+            <div id="sanyo-line-branch" class="sanyo-line-branch">
+                <span class="sanyo-line-label">山陽線</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
