@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {id: 'info3', type: 'info', message:'遅延情報は、複数列車が10分以上遅延したときに反映されます。'},
     ];
     const operationalIssues = [
-        { trainId: '449D', stationId: 6, reason: '車両の確認' }
+        //{ trainId: '449D', stationId: 6, reason: '車両の確認' }
     ];
     const suspendedSections = [
         // 運休区間を表示したい場合はコメントを解除し、適切な区間を設定してください
