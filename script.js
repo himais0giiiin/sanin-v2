@@ -603,5 +603,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderAnnouncements();
     renderStations();
     updatePositions();
-    setInterval(updatePositions, 500);
+    setInterval(updatePositions, 5000);
 });
