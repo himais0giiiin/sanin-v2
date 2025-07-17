@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // { fromStationId: 2, toStationId: 4, reason: '線路保守工事のため、9時～17時の間、綾羅木～安岡駅間で運転を見合わせます。', startTime: '09:00', endTime: '17:00' }
     ];
     const stations = [
-        { id: 0, name: '下関', iconUrl: 'images/sanin-yo.png', stationCode: '山陽線' }, // 例: アイコンURLを追加
+        { id: 0, name: '下関', iconUrl: 'images/sanyo.png', stationCode: '山陽線' }, // 例: アイコンURLを追加
         { id: 1, name: '幡生', iconUrl: 'images/sanin-yo.png', stationCode: '山陽線/山陰本線' },
         { id: 2, name: '綾羅木', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
         { id: 3, name: '梶栗郷台地', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
