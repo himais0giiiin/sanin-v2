@@ -12,6 +12,7 @@
     --down-train-color: #ffb703; /* Amber for Down direction */
     --stop-color: #e63946;     /* Red */
     --delay-color: #e76f51;    /* Orange */
+    --early-color: #00bfff;    /* Deep Sky Blue for early departure */
     --wait-color: #0077b6;     /* Blue */
 
     --info-bg-color: #e7f5ff;
@@ -189,8 +190,8 @@ h1 {
 .station-marker {
     position: absolute;
     left: 50%;
-    transform: translate(-50%, -50%);
-    top: 50%;
+    transform: translateX(-50%); /* 水平方向のセンタリングは維持 */
+    top: calc(50% - 6px);
     width: 16px; /* Larger marker */
     height: 16px; /* Larger marker */
     background-color: var(--surface-color); /* White fill */
@@ -252,8 +253,8 @@ h1 {
 
 .sanyo-line-label {
     position: absolute;
-    top: calc(100% + 5px); /* Position below the branch */
-    left: calc(100% - 15px); /* Adjusted horizontally */
+    top: calc(100% - 11px); /* Position below the branch */
+    left: calc(100% + 3px); /* Adjusted horizontally */
     transform: none; /* Remove previous transform */
     white-space: nowrap;
     font-size: 0.85em;
@@ -294,54 +295,211 @@ h1 {
 
 /* --- Train Icons (画像用) --- */
 .train {
-    position: absolute;
-    /* widthとheightはJavaScriptで設定されるため、ここでは調整不要 */
+    position: absolute; /* 親要素のtrain-listに対して絶対配置 */
+    /* topはJavaScriptで設定される */
+    width: 40px; /* クリック可能な領域を拡大 */
+    height: 40px; /* クリック可能な領域を拡大 */
     cursor: pointer;
     transition: top 1s linear;
     z-index: 10;
+    display: flex; /* 画像を中央に配置するためにflexboxを使用 */
+    justify-content: center; /* 水平方向中央揃え */
+    align-items: center; /* 垂直方向中央揃え */
 }
 
 .train img {
-    width: 100%;
-    height: 100%;
+    width: 25px; /* 画像の元のサイズを維持 */
+    height: 25px; /* 画像の元のサイズを維持 */
     object-fit: contain;
 }
 
 /* 各方向・状態の列車アイコンの位置調整 */
+/* 新しい幅 (40px) と画像サイズ (25px) を考慮して再計算 */
 .train.up-image,
 .train.delayed-up-image,
 .train.substitute-up-image {
-    left: 50%;
-    /* アイコンの左端を線路中央に合わせ、線路の太さの半分を考慮して右にずらす */
-    transform: translateX(3.5px); 
+    /* 線路の中心 (50%) から右にトラック幅の半分 (3.5px) ＋ 列車アイコンの幅 (25px) を考慮して配置 */
+    left: calc(50% + 3.5px - ((40px - 25px) / 2)); /* 3.5px (線路右端) - 7.5px (コンテナ左端から画像左端までのパディング) */
+    transform: none; /* transformは不要 */
 }
 
 .train.down-image,
 .train.delayed-down-image,
 .train.substitute-down-image {
-    left: 50%;
-    /* アイコンの右端を線路中央に合わせ、線路の太さの半分を考慮して左にずらす */
-    transform: translateX(calc(-100% - 3.5px));
+    /* 線路の中心 (50%) から左にトラック幅の半分 (3.5px) ＋ 列車アイコンの幅 (25px) を考慮して配置 */
+    left: calc(50% - 3.5px - 40px + ((40px - 25px) / 2)); /* 線路左端 - コンテナ全体幅 + コンテナ左端から画像左端までのパディング */
+    transform: none; /* transformは不要 */
 }
 
 .train.stopped-image,
 .train.waiting-image {
+    /* 線路の中心 (50%) に列車アイコンの中心が来るように配置 */
+    left: calc(50% - 20px); /* 列車アイコンの半分の幅20pxを引く */
+    transform: none; /* transformは不要 */
+}
+
+/* NEW: 列車アイコンの上に表示される遅延/早発のテキスト */
+.train-status-overlay {
+    position: absolute;
+    top: -20px; /* 画像にさらに近づけるために調整 */
     left: 50%;
     transform: translateX(-50%);
+    font-size: 1em; /* 文字を大きく */
+    font-weight: 700; /* 文字をさらに太く (Black) */
+    white-space: nowrap;
+    z-index: 11; /* Above the train image */
+    text-shadow: 0 0 3px rgba(255,255,255,0.8), 0 0 3px rgba(255,255,255,0.8); /* 白い影を強くして視認性を向上 */
 }
+
+.train-status-overlay.delay {
+    color: var(--delay-color); /* Orange */
+}
+
+.train-status-overlay.early {
+    color: var(--early-color); /* Deep Sky Blue for early departure */
+}
+
 
 /* --- Tooltip --- */
 .tooltip {
     display: none;
     position: fixed;
-    background-color: #212529;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 13px;
+    /* 変更点: 背景色を白、文字色を黒に */
+    background-color: var(--surface-color); /* #ffffff */
+    color: var(--text-color); /* #212529 */
+    padding: 15px 20px; /* パディングを増やす */
+    border-radius: 12px; /* 角を丸くする */
+    font-size: 14px; /* フォントサイズを調整 */
     white-space: nowrap;
     z-index: 20;
     pointer-events: none; /* デフォルトでクリックをブロックしない */
     line-height: 1.6;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 25px var(--shadow-color); /* 影を強調 */
+    border: 1px solid var(--border-color); /* 枠線を追加 */
+    text-align: left; /* テキストを左寄せに */
+    min-width: 250px; /* 最小幅を設定 */
+}
+
+/* ツールチップ内のタイトル */
+.tooltip h3 {
+    font-size: 1.2em; /* タイトルを少し大きく */
+    font-weight: 600; /* 太字 */
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: var(--primary-color); /* プライマリカラーを使用 */
+}
+
+.tooltip .sub-text {
+    font-size: 0.85em; /* サブテキストを小さく */
+    color: var(--subtle-text-color);
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color); /* 下線を追加 */
+    padding-bottom: 8px;
+}
+
+.tooltip .train-info-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.tooltip .train-type-label {
+    background-color: #007bff; /* 青色の背景 */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.tooltip .train-main-info {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.tooltip .train-main-info span {
+    font-weight: normal; /* 行き先などのテキストは通常の太さに */
+}
+
+.tooltip .delay-status {
+    font-weight: bold;
+    color: var(--delay-color); /* 遅延色 */
+    margin-left: 10px;
+    font-size: 1em;
+}
+
+/* NEW: 乗りやすさ指標のスタイル */
+.comfort-index-section {
+    font-size: 0.95em;
+    color: var(--text-color);
+    margin-top: 5px; /* 遅延情報の下にスペースを空ける */
+    font-weight: normal; /* デフォルトは通常 */
+}
+
+.comfort-index-section b {
+    font-weight: bold; /* 「混雑度:」の部分を太字に */
+}
+
+/* NEW: 各混雑度に応じた色定義 */
+.comfort-value-very-empty {
+    color: #28a745; /* とても空いています - 緑色 */
+    font-weight: bold;
+}
+
+.comfort-value-empty {
+    color: #17a2b8; /* 空いています - シアン系 */
+    font-weight: bold;
+}
+
+.comfort-value-slightly-crowded {
+    color: #ffc107; /* やや混雑 - 黄色 */
+    font-weight: bold;
+}
+
+.comfort-value-crowded {
+    color: #fd7e14; /* 混雑 - オレンジ色 */
+    font-weight: bold;
+}
+
+.comfort-value-very-crowded {
+    color: #dc3545; /* 非常に混雑 - 赤色 */
+    font-weight: bold;
+}
+
+.comfort-value-unknown {
+    color: #757575; /* 不明 - 赤色 */
+    font-weight: bold;
+}
+
+
+.tooltip .next-station-arrival {
+    font-size: 0.9em;
+    color: var(--text-color);
+    margin-top: 5px; /* 上の要素との間隔を調整 */
+    margin-left: 5px; /* 左に少しずらす */
+}
+
+.tooltip .next-station-arrival span {
+    font-weight: bold; /* 駅名と時刻を太字に */
+}
+
+.tooltip .disclaimer {
+    font-size: 0.75em; /* 免責事項を小さく */
+    color: var(--subtle-text-color);
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color); /* 破線の上線 */
+}
+
+.tooltip .disclaimer::before {
+    content: '● '; /* 黒丸を追加 */
+    color: var(--subtle-text-color);
+}
+
+/* 必要に応じて、アイコンのサイズ調整も行う */
+.tooltip img {
+    vertical-align: middle;
+    margin-right: 5px;
 }

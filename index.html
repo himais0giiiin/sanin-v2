@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>列車運行状況シミュレーター (山陰本線)</title>
+    <title>列車走行位置 (山陰本線)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>山陰本線 列車運行状況 (下関 - 滝部)</h1>
+            <h1>山陰本線 列車走行位置</h1>
+            <h1>(下関 - 滝部)</h1>
             <div id="current-time">--:--:--</div>
         </header>
         
@@ -27,11 +28,11 @@
             </div>
             <div class="legend-item">
                 <div class="legend-icon waiting"></div>
-                <span>停車中(定刻)</span>
+                <span>乗降中</span>
             </div>
             <div class="legend-item">
                 <div class="legend-icon stopped">×</div>
-                <span>停車中(支障)</span>
+                <span>停車中</span>
             </div>
         </div>
         <div id="train-guide-wrapper">
