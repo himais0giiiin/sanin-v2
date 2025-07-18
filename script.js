@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // NEW: 全体の列車進行速度を調整する変数 (パーセンテージで指定)
     // 例: 100 = 通常速度, 50 = 半分の速度 (徐行運転)
-    let globalSlowOperationPercentage = 100; // デフォルトは通常速度
+    let globalSlowOperationPercentage = 33; // デフォルトは通常速度
 
     // 列車時刻表データ (ユーザー提供のデータ)
     const trainSchedules = [
@@ -435,8 +435,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const trainDiv = document.createElement('div');
                 trainDiv.className = 'train stopped-image';
                 trainDiv.innerHTML = `<img src="${imagePaths.stopped}" alt="運行支障">`;
-                trainDiv.style.top = `${trainY - 22.5}px`; // 列車アイコンの高さの半分を引く
-
+                trainDiv.style.top = `${trainY}px`; // CSSのtopオフセットに任せる
+                
                 // 運行支障時のツールチップ内容を生成
                 const tooltipContentHtml = `
                     <h3>運行状況</h3>
@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const trainDiv = document.createElement('div');
                         trainDiv.className = 'train waiting-image';
                         trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="乗降中">`;
-                        trainDiv.style.top = `${trainY - 22.5}px`;
+                        trainDiv.style.top = `${trainY}px`; // CSSのtopオフセットに任せる
 
                         const tooltipContentHtml = `
                             <h3>運行状況</h3>
@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const trainDiv = document.createElement('div');
                         trainDiv.className = 'train waiting-image';
                         trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="乗降中">`;
-                        trainDiv.style.top = `${trainY - 22.5}px`;
+                        trainDiv.style.top = `${trainY}px`; // CSSのtopオフセットに任せる
 
                         const tooltipContentHtml = `
                             <h3>運行状況</h3>
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const trainDiv = document.createElement('div');
                     trainDiv.className = 'train waiting-image';
                     trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="乗降中">`;
-                    trainDiv.style.top = `${trainY - 22.5}px`;
+                    trainDiv.style.top = `${trainY}px`; // CSSのtopオフセットに任せる
 
                     const tooltipContentHtml = `
                         <h3>運行状況</h3>
@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <img src="${imgSrc}" alt="${altText}">
                             ${overlayText ? `<div class="train-status-overlay ${overlayClass}">${overlayText}</div>` : ''}
                         `;
-                        trainDiv.style.top = `${trainY - 22.5}px`; // 列車アイコンの高さの半分を引く
+                        trainDiv.style.top = `${trainY}px`; // CSSのtopオフセットに任せる
                         
                         // 駅間走行中のツールチップ内容を生成
                         const tooltipContentHtml = `

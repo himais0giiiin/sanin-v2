@@ -339,6 +339,8 @@ h2 {
     border-radius: 50%; /* 丸い背景 */
     background-color: rgba(255, 255, 255, 0.9); /* 白い半透明背景 */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 影 */
+    top: -10px; /* ここで列車アイコンの垂直位置を調整します。 */
+                  /* 以前はJavaScriptで設定されていましたが、CSSで基準値を設定します。 */
 }
 
 .train img {
@@ -352,13 +354,13 @@ h2 {
 .train.up-image,
 .train.delayed-up-image,
 .train.substitute-up-image {
-    left: calc(50% + 4px - (45px / 2) + 15px); /* 線路右側へさらに10pxオフセット */
+    left: calc(50% + 4px - (45px / 2) + 25px); /* 線路右側へさらに20pxオフセット */
 }
 
 .train.down-image,
 .train.delayed-down-image,
 .train.substitute-down-image {
-    left: calc(50% - 4px - (45px / 2) - 15px); /* 線路左側へさらに10pxオフセット */
+    left: calc(50% - 4px - (45px / 2) - 25px); /* 線路左側へさらに20pxオフセット */
 }
 
 .train.stopped-image,
