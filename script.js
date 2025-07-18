@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const announcements = [
         {id: 'info2', type: 'info', message:"この走行位置は2025年度改正のダイヤに準拠しています。"},
         {id: 'info3', type: 'info', message:'遅延情報は、複数列車が10分以上遅延したときに反映されます。'},
-        {id: 'info4', type: 'suspended', message:'広島・山口地区では、明日（７月１８日）の早朝から大雨が見込まれています。このため、列車の遅れや運転取り止め、急遽の行先変更がでる可能性があります。'},
+        {id: 'info4', type: 'suspended', message:'山陰線では、大雨のため黒井村駅～幡生駅間で徐行運転をしています。このため、列車に５～３０分の遅れがでています。'},
     ];
     const operationalIssues = [
         //{ trainId: '449D', stationId: 6, reason: '車両の確認' }
@@ -49,8 +49,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     ];
     // NEW: お知らせ範囲のデータ
     const infoRangeSections = [
-        { fromStationId: 5, toStationId: 7, reason: 'この区間は強風のため、速度を落として運転しています。', startTime: '06:00', endTime: '23:00' },
-        { fromStationId: 1, toStationId: 3, reason: '幡生駅構内での車両点検のため、一部列車に遅れが発生する可能性があります。', startTime: '00:00', endTime: '23:59' }
+        { fromStationId: 0, toStationId: 10, reason: 'この区間は大雨のため、速度を落として運転しています。', startTime: '06:00', endTime: '23:00' },
+        //{ fromStationId: 1, toStationId: 3, reason: '幡生駅構内での車両点検のため、一部列車に遅れが発生する可能性があります。', startTime: '00:00', endTime: '23:59' }
     ];
 
     const stations = [
