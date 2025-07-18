@@ -20,6 +20,8 @@
     --info-icon-color: #1c7ed6;
 
     --branch-line-color: #a3cc95; /* Light green/grey for branch lines */
+
+    --warning-color: #ffc107; /* NEW: 黄色のお知らせ用カラー */
 }
 
 /* --- General Settings --- */
@@ -191,7 +193,7 @@ h1 {
     position: absolute;
     left: 50%;
     transform: translateX(-50%); /* 水平方向のセンタリングは維持 */
-    top: calc(50% - 6px);
+    top: 50%; /* 垂直方向のずれを修正するために調整 (元の50%に戻す) */
     width: 16px; /* Larger marker */
     height: 16px; /* Larger marker */
     background-color: var(--surface-color); /* White fill */
@@ -253,8 +255,8 @@ h1 {
 
 .sanyo-line-label {
     position: absolute;
-    top: calc(100% - 11px); /* Position below the branch */
-    left: calc(100% + 3px); /* Adjusted horizontally */
+    top: calc(100% + 5px); /* Position below the branch */
+    left: calc(100% - 15px); /* Adjusted horizontally */
     transform: none; /* Remove previous transform */
     white-space: nowrap;
     font-size: 0.85em;
@@ -292,6 +294,19 @@ h1 {
     cursor: pointer;
 }
 
+/* NEW: お知らせ範囲セクションのスタイル */
+.info-range-section {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    background-color: rgba(255, 193, 7, 0.3); /* 黄色 (透過度30%) */
+    border-left: 2px solid var(--warning-color); /* 黄色の枠線 */
+    border-right: 2px solid var(--warning-color); /* 黄色の枠線 */
+    z-index: 5;
+    cursor: pointer;
+}
+
 
 /* --- Train Icons (画像用) --- */
 .train {
@@ -319,7 +334,7 @@ h1 {
 .train.delayed-up-image,
 .train.substitute-up-image {
     /* 線路の中心 (50%) から右にトラック幅の半分 (3.5px) ＋ 列車アイコンの幅 (25px) を考慮して配置 */
-    left: calc(50% + 3.5px - ((40px - 25px) / 2)); /* 3.5px (線路右端) - 7.5px (コンテナ左端から画像左端までのパディング) */
+    left: calc(50% + 3.5px - ((40px - 25px) / 2)); /* 50% - 4px と同じ */
     transform: none; /* transformは不要 */
 }
 
