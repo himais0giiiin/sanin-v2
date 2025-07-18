@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const announcements = [
         {id: 'info2', type: 'info', message:"この走行位置は2025年度改正のダイヤに準拠しています。"},
         {id: 'info3', type: 'info', message:'遅延情報は、複数列車が10分以上遅延したときに反映されます。'},
-        {id: 'info4', type: 'suspended', message:'山陰線では、大雨のため黒井村駅～幡生駅間で徐行運転をしています。このため、列車に５～４５分の遅れがでています。'},
+        {id: 'info4', type: 'suspended', message:'広島・山口地区では、明日（７月１８日）の早朝から大雨が見込まれています。このため、列車の遅れや運転取り止め、急遽の行先変更がでる可能性があります。'},
     ];
     const operationalIssues = [
         //{ trainId: '449D', stationId: 6, reason: '車両の確認' }
@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const suspendedSections = [
         // 運休区間を表示したい場合はコメントを解除し、適切な区間を設定してください
         // { fromStationId: 7, toStationId: 10, reason: '大雨による土砂災害のため、梅ヶ峠～小串駅間で終日運転を見合わせています。' },
-        { fromStationId: 4, toStationId: 10, reason: '線路点検のため、17:13より20分ほど、安岡～小串間で運転を見合わせます。', startTime: '17:13', endTime: '17:33' }
+        // { fromStationId: 2, toStationId: 4, reason: '線路保守工事のため、9時～17時の間、綾羅木～安岡駅間で運転を見合わせます。', startTime: '09:00', endTime: '17:00' }
     ];
     // NEW: お知らせ範囲のデータ
     const infoRangeSections = [
-        { fromStationId: 0, toStationId: 4, reason: 'この区間は大雨のため、速度を落として運転します。', startTime: '06:00', endTime: '23:00' },
-        ///{ fromStationId: 1, toStationId: 3, reason: '幡生駅構内での車両点検のため、一部列車に遅れが発生する可能性があります。', startTime: '00:00', endTime: '23:59' }
+        { fromStationId: 5, toStationId: 7, reason: 'この区間は強風のため、速度を落として運転しています。', startTime: '06:00', endTime: '23:00' },
+        { fromStationId: 1, toStationId: 3, reason: '幡生駅構内での車両点検のため、一部列車に遅れが発生する可能性があります。', startTime: '00:00', endTime: '23:59' }
     ];
 
     const stations = [
@@ -88,6 +88,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         3: 'comfort-value-crowded',
         4: 'comfort-value-very-crowded'
     };
+
+    // NEW: 全体の列車進行速度を調整する変数 (パーセンテージで指定)
+    // 例: 100 = 通常速度, 50 = 半分の速度 (徐行運転)
+    let globalSlowOperationPercentage = 33; // デフォルトは通常速度
 
     // 列車時刻表データ (script.js に直接記述)
     const trainSchedules = [
@@ -140,8 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {"trainId":"830D","type":"普通","direction":"up","destination":"小串","delayMinutes":0,"timetable":[{"stationId":0,"departure":"13:14"},{"stationId":1,"arrival":"13:18","departure":"13:19"},{"stationId":2,"arrival":"13:24","departure":"13:25"},{"stationId":3,"arrival":"13:26","departure":"13:27"},{"stationId":4,"arrival":"13:29","departure":"13:30"},{"stationId":5,"arrival":"13:33","departure":"13:34"},{"stationId":6,"arrival":"13:37","departure":"13:38"},{"stationId":7,"arrival":"13:43","departure":"13:44"},{"stationId":8,"arrival":"13:48","departure":"13:49"},{"stationId":9,"arrival":"13:52","departure":"13:53"},{"stationId":10,"arrival":"13:57"}]},
         {"trainId":"1830D","type":"普通","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":0,"departure":"14:31"},{"stationId":1,"arrival":"14:36","departure":"14:37"},{"stationId":2,"arrival":"14:41","departure":"14:42"},{"stationId":3,"arrival":"14:43","departure":"14:44"},{"stationId":4,"arrival":"14:46","departure":"14:47"},{"stationId":5,"arrival":"14:50","departure":"14:51"},{"stationId":6,"arrival":"14:54","departure":"14:55"},{"stationId":7,"arrival":"15:00","departure":"15:01"},{"stationId":8,"arrival":"15:05","departure":"15:06"},{"stationId":9,"arrival":"15:09","departure":"15:10"},{"stationId":10,"arrival":"15:13","departure":"15:14"},{"stationId":11,"arrival":"15:41","departure":"15:42"},{"stationId":12,"arrival":"15:45","departure":"15:46"},{"stationId":13,"arrival":"15:53","departure":"15:54"},{"stationId":14,"arrival":"16:02"}]},
         {"trainId":"1832D","type":"普通","direction":"up","destination":"小串","delayMinutes":0,"timetable":[{"stationId":0,"departure":"15:37"},{"stationId":1,"arrival":"15:41","departure":"15:42"},{"stationId":2,"arrival":"15:46","departure":"15:47"},{"stationId":3,"arrival":"15:49","departure":"15:50"},{"stationId":4,"arrival":"15:52","departure":"15:53"},{"stationId":5,"arrival":"15:56","departure":"15:57"},{"stationId":6,"arrival":"16:00","departure":"16:01"},{"stationId":7,"arrival":"16:06","departure":"16:07"},{"stationId":8,"arrival":"16:11","departure":"16:12"},{"stationId":9,"arrival":"16:15","departure":"16:16"},{"stationId":10,"arrival":"16:19"}]},
-        {"trainId":"830D","type":"普通","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":0,"departure":"16:11"},{"stationId":1,"arrival":"16:16","departure":"16:17"},{"stationId":2,"arrival":"16:21","departure":"16:22"},{"stationId":3,"arrival":"16:23","departure":"16:24"},{"stationId":4,"arrival":"16:26","departure":"16:27"},{"stationId":5,"arrival":"16:30","departure":"16:31"},{"stationId":6,"arrival":"16:34","departure":"16:35"},{"stationId":7,"arrival":"16:40","departure":"16:41"},{"stationId":8,"arrival":"16:45","departure":"16:46"},{"stationId":9,"arrival":"16:49","departure":"16:50"},{"stationId":10,"arrival":"16:53","departure":"16:54"},{"stationId":11,"arrival":"17:02","departure":"17:03"},{"stationId":12,"arrival":"17:06","departure":"17:07"},{"stationId":13,"arrival":"17:14","departure":"17:15"},{"stationId":14,"arrival":"17:22"}]},
-        {"trainId":"1834D","type":"普通","direction":"up","destination":"小串","delayMinutes":0,"timetable":[{"stationId":0,"departure":"16:48"},{"stationId":1,"arrival":"16:53","departure":"16:54"},{"stationId":2,"arrival":"16:58","departure":"16:59"},{"stationId":3,"arrival":"17:01","departure":"17:02"},{"stationId":4,"arrival":"17:04","departure":"17:05"},{"stationId":5,"arrival":"17:08","departure":"17:09"},{"stationId":6,"arrival":"17:13","departure":"17:14"},{"stationId":7,"arrival":"17:18","departure":"17:19"},{"stationId":8,"arrival":"17:23","departure":"17:24"},{"stationId":9,"arrival":"17:29","departure":"17:30"},{"stationId":10,"arrival":"17:34"}]},
+        {"trainId":"1834D","type":"普通","direction":"up","destination":"小串","delayMinutes":28,"timetable":[{"stationId":0,"departure":"16:48"},{"stationId":1,"arrival":"16:53","departure":"16:54"},{"stationId":2,"arrival":"16:58","departure":"16:59"},{"stationId":3,"arrival":"17:01","departure":"17:02"},{"stationId":4,"arrival":"17:04","departure":"17:05"},{"stationId":5,"arrival":"17:08","departure":"17:09"},{"stationId":6,"arrival":"17:13","departure":"17:14"},{"stationId":7,"arrival":"17:18","departure":"17:19"},{"stationId":8,"arrival":"17:23","departure":"17:24"},{"stationId":9,"arrival":"17:29","departure":"17:30"},{"stationId":10,"arrival":"17:34"}]},
         {"trainId":"1836D","type":"普通","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":0,"departure":"16:11"},{"stationId":1,"arrival":"16:16","departure":"16:17"},{"stationId":2,"arrival":"16:21","departure":"16:22"},{"stationId":3,"arrival":"16:23","departure":"16:24"},{"stationId":4,"arrival":"16:26","departure":"16:27"},{"stationId":5,"arrival":"16:30","departure":"16:31"},{"stationId":6,"arrival":"16:34","departure":"16:35"},{"stationId":7,"arrival":"16:40","departure":"16:41"},{"stationId":8,"arrival":"16:45","departure":"16:46"},{"stationId":9,"arrival":"16:49","departure":"16:50"},{"stationId":10,"arrival":"16:53","departure":"16:54"},{"stationId":11,"arrival":"17:02","departure":"17:03"},{"stationId":12,"arrival":"17:06","departure":"17:07"},{"stationId":13,"arrival":"17:14","departure":"17:15"},{"stationId":14,"arrival":"17:22"}]},
         {"trainId":"1838D","type":"普通","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":0,"departure":"17:26"},{"stationId":1,"arrival":"17:30","departure":"17:31"},{"stationId":2,"arrival":"17:36","departure":"17:37"},{"stationId":3,"arrival":"17:39","departure":"17:40"},{"stationId":4,"arrival":"17:42","departure":"17:43"},{"stationId":5,"arrival":"17:48","departure":"17:49"},{"stationId":6,"arrival":"17:53","departure":"17:54"},{"stationId":7,"arrival":"17:56","departure":"17:57"},{"stationId":8,"arrival":"18:03","departure":"18:04"},{"stationId":9,"arrival":"18:08","departure":"18:09"},{"stationId":10,"arrival":"18:13","departure":"18:14"},{"stationId":11,"arrival":"18:21","departure":"18:22"},{"stationId":12,"arrival":"18:26","departure":"18:27"},{"stationId":13,"arrival":"18:34","departure":"18:35"},{"stationId":14,"arrival":"18:42"}]},
         {"trainId":"832D","type":"普通","direction":"up","destination":"小串","delayMinutes":0,"timetable":[{"stationId":0,"departure":"18:04"},{"stationId":1,"arrival":"18:09","departure":"18:10"},{"stationId":2,"arrival":"18:14","departure":"18:15"},{"stationId":3,"arrival":"18:17","departure":"18:18"},{"stationId":4,"arrival":"18:20","departure":"18:21"},{"stationId":5,"arrival":"18:27","departure":"18:28"},{"stationId":6,"arrival":"18:31","departure":"18:32"},{"stationId":7,"arrival":"18:37","departure":"18:38"},{"stationId":8,"arrival":"18:42","departure":"18:43"},{"stationId":9,"arrival":"18:46","departure":"18:47"},{"stationId":10,"arrival":"18:51"}]},
@@ -381,6 +384,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderSuspendedSections(now);
         renderInfoRangeSections(now); // NEW: お知らせ範囲のレンダリングを呼び出す
 
+        // NEW: 全体速度調整ファクターを計算
+        const effectiveSpeedFactor = globalSlowOperationPercentage / 100;
+
         // console.log('現在の時刻 (now):', now.toLocaleTimeString('ja-JP'));
         // console.log('処理対象の列車数:', trainSchedules.length);
 
@@ -555,7 +561,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                             break;
                         }
 
-                        const progress = (trainTime - departureTime) / (nextArrivalTime - departureTime);
+                        const timeElapsed = trainTime - departureTime;
+                        const totalScheduledTravelTime = nextArrivalTime - departureTime;
+
+                        // NEW: 全体速度調整ファクターを適用
+                        const adjustedTravelTime = totalScheduledTravelTime / effectiveSpeedFactor;
+
+                        const progress = timeElapsed / adjustedTravelTime;
+
                         const prevStationElem = document.getElementById(`station-${currentStop.stationId}`);
                         const nextStationElem = document.getElementById(`station-${nextStop.stationId}`);
                         if (!prevStationElem || !nextStationElem) {
