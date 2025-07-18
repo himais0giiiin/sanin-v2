@@ -1,75 +1,109 @@
 /* --- CSS Variables for Modern Theme --- */
 :root {
-    --bg-color: #f8f9fa;
+    --bg-color: #f0f2f5; /* 非常に明るいグレー */
     --surface-color: #ffffff;
-    --primary-color: #00529B; /* Deeper Blue, used for main track */
+    --primary-color: #0056b3; /* 深い青 */
+    --secondary-color: #6c757d; /* サブテキスト用 */
     --text-color: #212529;
-    --subtle-text-color: #6c757d;
-    --border-color: #e9ecef;
-    --shadow-color: rgba(0, 0, 0, 0.075);
+    --subtle-text-color: #868e96; /* より控えめなテキスト */
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.08); /* より強い影 */
+    --hover-shadow-color: rgba(0, 0, 0, 0.15); /* ホバー時の影 */
 
-    --up-train-color: #2a9d8f;   /* Teal for Up direction */
-    --down-train-color: #ffb703; /* Amber for Down direction */
-    --stop-color: #e63946;     /* Red */
-    --delay-color: #e76f51;    /* Orange */
-    --early-color: #00bfff;    /* Deep Sky Blue for early departure */
-    --wait-color: #0077b6;     /* Blue */
+    --up-train-color: #28a745;   /* 緑系 */
+    --down-train-color: #fd7e14; /* オレンジ系 */
+    --stop-color: #dc3545;     /* 赤 */
+    --delay-color: #ffc107;    /* 黄色 */
+    --early-color: #17a2b8;    /* シアン */
+    --wait-color: #007bff;     /* 青 */
+    --substitute-color: #6f42c1; /* 紫 */
 
-    --info-bg-color: #e7f5ff;
+    --info-bg-color: #e9f7ff;
     --info-border-color: #a5d8ff;
-    --info-icon-color: #1c7ed6;
+    --info-icon-color: #007bff;
 
-    --branch-line-color: #a3cc95; /* Light green/grey for branch lines */
+    --suspended-bg-color: rgba(255, 192, 203, 0.4); /* 薄いピンク */
+    --suspended-border-color: #ff69b4; /* 濃いピンク */
 
-    --warning-color: #ffc107; /* NEW: 黄色のお知らせ用カラー */
+    --warning-bg-color: rgba(255, 235, 59, 0.3); /* 薄い黄色 */
+    --warning-border-color: #ffc107; /* 濃い黄色 */
+
+    --branch-line-color: #a3cc95; /* ライトグリーン/グレー */
+
+    --light-gray-bg: #f8f8f8; /* 薄い灰色を追加 */
 }
 
 /* --- General Settings --- */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-family: 'Inter', sans-serif; /* Interフォントを使用 */
     background-color: var(--bg-color);
     color: var(--text-color);
     display: flex;
     justify-content: center;
-    padding: 0;
+    padding: 20px; /* 全体のパディングを増やす */
     margin: 0;
     line-height: 1.6;
     min-height: 100vh;
-    align-items: stretch;
+    align-items: flex-start; /* 上部に寄せる */
+    box-sizing: border-box;
 }
 
 .container {
     width: 95%;
     max-width: 900px;
     background-color: var(--surface-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 25px var(--shadow-color);
-    padding: 20px;
+    border-radius: 16px; /* 角をさらに丸く */
+    box-shadow: 0 8px 30px var(--shadow-color); /* 影を強調 */
+    padding: 30px; /* パディングを増やす */
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: calc(100vh - 40px); /* body paddingを考慮 */
     box-sizing: border-box;
 }
 
 header {
     text-align: center;
-    padding-bottom: 16px;
-    margin-bottom: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
 }
 
 h1 {
-    font-size: 1.75em;
-    font-weight: 600;
+    font-size: 2.2em; /* 大きな見出し */
+    font-weight: 700; /* 太字 */
     color: var(--primary-color);
     margin: 0;
+    letter-spacing: -0.5px; /* 文字間隔を調整 */
+}
+
+h2 {
+    font-size: 1.4em;
+    font-weight: 500;
+    color: var(--secondary-color);
+    margin-top: 5px;
 }
 
 #current-time {
-    font-size: 1.1em;
+    font-size: 1.2em;
     color: var(--subtle-text-color);
-    font-weight: 500;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+/* --- Card Style --- */
+.card {
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 6px 20px var(--hover-shadow-color);
 }
 
 /* --- Announcements --- */
@@ -85,9 +119,10 @@ h1 {
     background-color: var(--info-bg-color);
     border: 1px solid var(--info-border-color);
     color: var(--primary-color);
-    font-size: 0.9em;
+    font-size: 0.95em;
     border-radius: 8px;
     margin-bottom: 8px;
+    box-shadow: none; /* 個々のお知らせアイテムには影をつけない */
 }
 .announcement-item:last-child {
     margin-bottom: 0;
@@ -95,9 +130,9 @@ h1 {
 
 .announcement-icon {
     flex-shrink: 0;
-    margin-top: 3px;
-    width: 16px;
-    height: 16px;
+    margin-top: 2px;
+    width: 20px; /* アイコンサイズを少し大きく */
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -109,7 +144,6 @@ h1 {
     object-fit: contain;
 }
 
-
 /* --- Legend --- */
 .legend {
     display: flex;
@@ -118,8 +152,9 @@ h1 {
     flex-wrap: wrap;
     gap: 16px 24px;
     margin-bottom: 24px;
-    font-size: 0.85em;
+    font-size: 0.9em;
     color: var(--subtle-text-color);
+    padding: 15px 20px; /* カードのパディング */
 }
 
 .legend-item {
@@ -129,32 +164,31 @@ h1 {
 }
 
 .legend-icon {
-    width: 24px;
-    height: 24px;
+    width: 28px; /* アイコンのコンテナサイズを調整 */
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.legend-icon.up,
-.legend-icon.down,
-.legend-icon.stopped,
-.legend-icon.waiting {
-    width: auto;
-    height: auto;
-    border: none;
-    background: none;
-    color: inherit;
-    font-weight: normal;
-    font-size: inherit;
+.legend-icon img {
+    width: 25px; /* 画像の実際のサイズ */
+    height: 25px;
+    object-fit: contain;
 }
 
 /* --- Track Layout --- */
 #train-guide-wrapper {
     position: relative;
-    padding: 0 20px; /* 左右に20pxのパディング */
+    padding: 0 20px;
     flex-grow: 1;
-    min-height: calc(100vh - 250px);
+    min-height: calc(100vh - 400px); /* ヘッダーやカードの高さに合わせて調整 */
+    overflow-y: auto; /* スクロール可能にする */
+    -webkit-overflow-scrolling: touch; /* iOSでのスムーズなスクロール */
+    border-radius: 12px;
+    background-color: var(--surface-color); /* 背景色を白に統一 */
+    padding-top: 20px; /* 上部にパディング */
+    padding-bottom: 20px; /* 下部にパディング */
 }
 
 #track {
@@ -163,16 +197,17 @@ h1 {
     transform: translateX(-50%);
     top: 0;
     bottom: 0;
-    width: 7px; /* Thicker track */
-    background-color: var(--primary-color); /* Blue track color */
+    width: 8px; /* 少し太く */
+    background-color: var(--primary-color);
     z-index: 1;
+    border-radius: 4px; /* 端を丸く */
 }
 
 #station-list {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: white; /* 間隔部分を白にするために親要素を白に */
+    position: relative; /* 駅の配置基準 */
 }
 
 .station {
@@ -181,73 +216,67 @@ h1 {
     align-items: center;
     flex-grow: 1;
     font-size: 14px;
-    min-height: 80px; /* 駅と駅の間の間隔を広げるために高さを調整 */
-    background-color: #f2f2f2; /* 駅部分を薄い灰色に */
+    min-height: 90px; /* 駅と駅の間の間隔を広げる */
+    background-color: var(--light-gray-bg); /* 奇数駅（デフォルト）は薄い灰色 */
 }
 
 .station:nth-child(even) {
-    background-color: white; /* 偶数番目の駅（間隔として機能する部分）を白に */
+    background-color: var(--surface-color); /* 偶数駅は白 */
 }
 
 .station-marker {
     position: absolute;
     left: 50%;
-    transform: translateX(-50%); /* 水平方向のセンタリングは維持 */
-    top: 50%; /* 垂直方向のずれを修正するために調整 (元の50%に戻す) */
-    width: 16px; /* Larger marker */
-    height: 16px; /* Larger marker */
-    background-color: var(--surface-color); /* White fill */
-    border: 4px solid var(--primary-color); /* Thicker blue border */
+    transform: translateX(-50%);
+    top: 50%;
+    width: 18px; /* 少し大きく */
+    height: 18px;
+    background-color: var(--surface-color); /* マーカー内部は白 */
+    border: 4px solid var(--primary-color); /* マーカーの枠線はプライマリカラー */
     border-radius: 50%;
-    z-index: 4; /* z-indexを上げて、常に手前に表示されるように修正 */
+    z-index: 4;
 }
 
 .station-name {
     position: absolute;
-    left: 20px; /* 画面左端からの余白 */
-    top: calc(50% - 20px); /* アイコンとの重なりを避けるため、少し上に配置 (調整) */
-    transform: none; /* 以前のtransformをリセット */
+    left: 25px; /* 左端からの余白を増やす */
+    top: calc(50% - 25px); /* アイコンとの重なりを避けるため調整 */
     white-space: nowrap;
     color: var(--text-color);
-    text-align: left; /* 左寄せ */
-    width: auto; /* 幅を自動調整 */
-    font-size: 1.1em; /* Slightly larger font */
-    font-weight: 600; /* Bolder font */
+    font-size: 1.15em; /* フォントサイズを大きく */
+    font-weight: 700; /* さらに太字 */
 }
 
-/* 駅アイコンのスタイル */
 .station-icon-wrapper {
     position: absolute;
-    left: 20px; /* 駅名と同じ左寄せ位置 */
-    top: calc(50% + 10px); /* 駅名の下に配置。アイコンサイズに合わせて調整 (調整) */
-    /* transform: translateY(-50%); /* 垂直方向の中央揃えを維持 */
+    left: 25px;
+    top: calc(50% + 10px); /* 駅名の下に配置 */
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* 左寄せ */
+    justify-content: flex-start;
     width: auto;
     height: auto;
-    z-index: 5; /* 駅名より手前に来るように調整 */
+    z-index: 5;
+    cursor: pointer;
 }
 
 .station-icon {
-    width: 20px; /* アイコンのサイズを縮小 */
-    height: 20px; /* アイコンのサイズを縮小 */
-    border-radius: 8px; /* 角を四角に丸める */
-    object-fit: cover; /* 画像がはみ出さないように調整 */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* 軽い影 */
+    width: 24px; /* アイコンのサイズを調整 */
+    height: 24px;
+    border-radius: 6px; /* 角を丸める */
+    object-fit: cover;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-
 
 /* 山陽線分岐のスタイル */
 #sanyo-line-branch {
     position: absolute;
-    left: calc(50% + 3.5px); /* Adjusted for new track width */
-    /* top will be set by JS based on Hatabu station's Y */
-    width: 60px; /* Adjusted width */
-    height: 30px; /* Adjusted height */
-    border-left: 3px solid var(--branch-line-color); /* Lighter color */
-    border-bottom: 3px solid var(--branch-line-color); /* Lighter color */
-    border-bottom-left-radius: 30px; /* Match radius to height */
+    left: calc(50% + 4px); /* Adjusted for new track width */
+    width: 70px; /* Adjusted width */
+    height: 35px; /* Adjusted height */
+    border-left: 3px solid var(--branch-line-color);
+    border-bottom: 3px solid var(--branch-line-color);
+    border-bottom-left-radius: 35px;
     z-index: 1;
     pointer-events: none;
     box-sizing: border-box;
@@ -255,43 +284,30 @@ h1 {
 
 .sanyo-line-label {
     position: absolute;
-    top: calc(100% + 5px); /* Position below the branch */
-    left: calc(100% - 15px); /* Adjusted horizontally */
-    transform: none; /* Remove previous transform */
+    top: calc(100% + 5px);
+    left: calc(100% - 20px); /* Adjusted horizontally */
     white-space: nowrap;
     font-size: 0.85em;
-    color: var(--branch-line-color); /* Match branch line color */
+    color: var(--branch-line-color);
     text-align: right;
+    font-weight: 600;
 }
 
-/* Style for Line Indicator (幡生駅) */
-.line-indicator {
-    position: absolute;
-    top: calc(50% + 20px); /* Position below the station marker */
-    left: 50%;
-    transform: translateX(-100%) translateX(-20px); /* Align to the left of the track, below name */
-    white-space: nowrap;
-    font-size: 0.8em;
-    color: var(--subtle-text-color);
-    border: none;
-    background: transparent;
-    border-radius: 0;
-    padding: 0; /* Remove padding */
-    z-index: 4;
-}
-
+/* Style for Line Indicator (幡生駅) - 廃止。アイコンで表示 */
+/* .line-indicator {} */
 
 /* --- Suspended Section --- */
 .suspended-section {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
-    background-color: rgba(255, 192, 203, 0.5); /* ピンク色 (透過度50%) */
-    border-left: 2px solid rgb(255, 192, 203); /* ピンク色の枠線 */
-    border-right: 2px solid rgb(255, 192, 203); /* ピンク色の枠線 */
+    width: 24px; /* 少し太く */
+    background-color: var(--suspended-bg-color);
+    border-left: 2px solid var(--suspended-border-color);
+    border-right: 2px solid var(--suspended-border-color);
     z-index: 5;
     cursor: pointer;
+    border-radius: 4px; /* 角を丸く */
 }
 
 /* NEW: お知らせ範囲セクションのスタイル */
@@ -299,71 +315,68 @@ h1 {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    width: 20px;
-    background-color: rgba(255, 193, 7, 0.3); /* 黄色 (透過度30%) */
-    border-left: 2px solid var(--warning-color); /* 黄色の枠線 */
-    border-right: 2px solid var(--warning-color); /* 黄色の枠線 */
+    width: 24px; /* 少し太く */
+    background-color: var(--warning-bg-color);
+    border-left: 2px solid var(--warning-border-color);
+    border-right: 2px solid var(--warning-border-color);
     z-index: 5;
     cursor: pointer;
+    border-radius: 4px; /* 角を丸く */
 }
 
 
 /* --- Train Icons (画像用) --- */
 .train {
-    position: absolute; /* 親要素のtrain-listに対して絶対配置 */
-    /* topはJavaScriptで設定される */
-    width: 40px; /* クリック可能な領域を拡大 */
-    height: 40px; /* クリック可能な領域を拡大 */
+    position: absolute;
+    width: 45px; /* クリック可能な領域を拡大 */
+    height: 45px;
     cursor: pointer;
     transition: top 1s linear;
     z-index: 10;
-    display: flex; /* 画像を中央に配置するためにflexboxを使用 */
-    justify-content: center; /* 水平方向中央揃え */
-    align-items: center; /* 垂直方向中央揃え */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%; /* 丸い背景 */
+    background-color: rgba(255, 255, 255, 0.9); /* 白い半透明背景 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 影 */
 }
 
 .train img {
-    width: 25px; /* 画像の元のサイズを維持 */
-    height: 25px; /* 画像の元のサイズを維持 */
+    width: 30px; /* 画像のサイズを少し大きく */
+    height: 30px;
     object-fit: contain;
 }
 
 /* 各方向・状態の列車アイコンの位置調整 */
-/* 新しい幅 (40px) と画像サイズ (25px) を考慮して再計算 */
+/* 線路の中心 (50%) からのオフセットを増やす */
 .train.up-image,
 .train.delayed-up-image,
 .train.substitute-up-image {
-    /* 線路の中心 (50%) から右にトラック幅の半分 (3.5px) ＋ 列車アイコンの幅 (25px) を考慮して配置 */
-    left: calc(50% + 3.5px - ((40px - 25px) / 2)); /* 50% - 4px と同じ */
-    transform: none; /* transformは不要 */
+    left: calc(50% + 4px - (45px / 2) + 15px); /* 線路右側へさらに10pxオフセット */
 }
 
 .train.down-image,
 .train.delayed-down-image,
 .train.substitute-down-image {
-    /* 線路の中心 (50%) から左にトラック幅の半分 (3.5px) ＋ 列車アイコンの幅 (25px) を考慮して配置 */
-    left: calc(50% - 3.5px - 40px + ((40px - 25px) / 2)); /* 線路左端 - コンテナ全体幅 + コンテナ左端から画像左端までのパディング */
-    transform: none; /* transformは不要 */
+    left: calc(50% - 4px - (45px / 2) - 15px); /* 線路左側へさらに10pxオフセット */
 }
 
 .train.stopped-image,
 .train.waiting-image {
-    /* 線路の中心 (50%) に列車アイコンの中心が来るように配置 */
-    left: calc(50% - 20px); /* 列車アイコンの半分の幅20pxを引く */
-    transform: none; /* transformは不要 */
+    left: calc(50% - (45px / 2)); /* 線路の中心 */
 }
 
 /* NEW: 列車アイコンの上に表示される遅延/早発のテキスト */
 .train-status-overlay {
     position: absolute;
-    top: -20px; /* 画像にさらに近づけるために調整 */
+    top: -18px; /* 画像にさらに近づけるために調整 */
     left: 50%;
     transform: translateX(-50%);
-    font-size: 1em; /* 文字を大きく */
-    font-weight: 700; /* 文字をさらに太く (Black) */
+    font-size: 1.1em; /* 文字を大きく */
+    font-weight: 800; /* 文字をさらに太く (Extra Bold) */
     white-space: nowrap;
-    z-index: 11; /* Above the train image */
-    text-shadow: 0 0 3px rgba(255,255,255,0.8), 0 0 3px rgba(255,255,255,0.8); /* 白い影を強くして視認性を向上 */
+    z-index: 11;
+    text-shadow: 0 0 4px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,0.9); /* 白い影を強くして視認性を向上 */
 }
 
 .train-status-overlay.delay {
@@ -379,36 +392,45 @@ h1 {
 .tooltip {
     display: none;
     position: fixed;
-    /* 変更点: 背景色を白、文字色を黒に */
-    background-color: var(--surface-color); /* #ffffff */
-    color: var(--text-color); /* #212529 */
-    padding: 15px 20px; /* パディングを増やす */
-    border-radius: 12px; /* 角を丸くする */
-    font-size: 14px; /* フォントサイズを調整 */
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    padding: 20px 25px; /* パディングを増やす */
+    border-radius: 16px; /* 角を丸くする */
+    font-size: 15px; /* フォントサイズを調整 */
     white-space: nowrap;
     z-index: 20;
-    pointer-events: none; /* デフォルトでクリックをブロックしない */
+    pointer-events: none;
     line-height: 1.6;
-    box-shadow: 0 4px 25px var(--shadow-color); /* 影を強調 */
-    border: 1px solid var(--border-color); /* 枠線を追加 */
-    text-align: left; /* テキストを左寄せに */
-    min-width: 250px; /* 最小幅を設定 */
+    box-shadow: 0 8px 30px var(--shadow-color); /* 影を強調 */
+    border: 1px solid var(--border-color);
+    text-align: left;
+    min-width: 280px; /* 最小幅を設定 */
+    max-width: 350px; /* 最大幅を設定 */
+    opacity: 0; /* 初期状態は透明 */
+    transition: opacity 0.2s ease, transform 0.2s ease; /* アニメーション */
+    transform: translateY(10px); /* 少し下にずらして表示 */
+}
+
+.tooltip.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto; /* 表示時にクリックを許可 */
 }
 
 /* ツールチップ内のタイトル */
 .tooltip h3 {
-    font-size: 1.2em; /* タイトルを少し大きく */
-    font-weight: 600; /* 太字 */
+    font-size: 1.3em; /* タイトルを少し大きく */
+    font-weight: 700; /* 太字 */
     margin-top: 0;
-    margin-bottom: 5px;
-    color: var(--primary-color); /* プライマリカラーを使用 */
+    margin-bottom: 8px;
+    color: var(--primary-color);
 }
 
 .tooltip .sub-text {
-    font-size: 0.85em; /* サブテキストを小さく */
+    font-size: 0.9em; /* サブテキストを小さく */
     color: var(--subtle-text-color);
     margin-bottom: 15px;
-    border-bottom: 1px solid var(--border-color); /* 下線を追加 */
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 8px;
 }
 
@@ -416,45 +438,55 @@ h1 {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
+    flex-wrap: wrap; /* 折り返しを許可 */
 }
 
 .tooltip .train-type-label {
-    background-color: #007bff; /* 青色の背景 */
+    background-color: var(--primary-color); /* 青色の背景 */
     color: white;
-    padding: 4px 8px;
-    border-radius: 5px;
-    font-size: 0.85em;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.9em;
     font-weight: bold;
     margin-right: 10px;
+    flex-shrink: 0; /* 縮小しない */
 }
 
 .tooltip .train-main-info {
-    font-size: 1.1em;
+    font-size: 1.15em;
     font-weight: bold;
     color: var(--text-color);
+    flex-grow: 1; /* 拡大を許可 */
+    white-space: normal; /* 折り返しを許可 */
 }
 
 .tooltip .train-main-info span {
-    font-weight: normal; /* 行き先などのテキストは通常の太さに */
+    font-weight: normal;
+    color: var(--secondary-color); /* 行き先はサブカラー */
 }
 
 .tooltip .delay-status {
     font-weight: bold;
-    color: var(--delay-color); /* 遅延色 */
-    margin-left: 10px;
+    color: var(--delay-color);
+    margin-top: 5px; /* 上の要素との間隔 */
+    margin-left: 0; /* 左寄せ */
     font-size: 1em;
+    width: 100%; /* 全幅を使用 */
 }
 
 /* NEW: 乗りやすさ指標のスタイル */
 .comfort-index-section {
     font-size: 0.95em;
     color: var(--text-color);
-    margin-top: 5px; /* 遅延情報の下にスペースを空ける */
-    font-weight: normal; /* デフォルトは通常 */
+    margin-top: 10px;
+    font-weight: normal;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
 }
 
 .comfort-index-section b {
-    font-weight: bold; /* 「混雑度:」の部分を太字に */
+    font-weight: bold;
+    color: var(--secondary-color);
 }
 
 /* NEW: 各混雑度に応じた色定義 */
@@ -484,7 +516,7 @@ h1 {
 }
 
 .comfort-value-unknown {
-    color: #757575; /* 不明 - 赤色 */
+    color: #757575; /* 不明 - グレー */
     font-weight: bold;
 }
 
@@ -492,29 +524,82 @@ h1 {
 .tooltip .next-station-arrival {
     font-size: 0.9em;
     color: var(--text-color);
-    margin-top: 5px; /* 上の要素との間隔を調整 */
-    margin-left: 5px; /* 左に少しずらす */
+    margin-top: 10px;
+    margin-left: 0;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
 }
 
 .tooltip .next-station-arrival span {
-    font-weight: bold; /* 駅名と時刻を太字に */
+    font-weight: bold;
+    color: var(--primary-color); /* 駅名と時刻をプライマリカラーに */
 }
 
 .tooltip .disclaimer {
-    font-size: 0.75em; /* 免責事項を小さく */
+    font-size: 0.75em;
     color: var(--subtle-text-color);
     margin-top: 15px;
     padding-top: 10px;
-    border-top: 1px dashed var(--border-color); /* 破線の上線 */
+    border-top: 1px dashed var(--border-color);
 }
 
 .tooltip .disclaimer::before {
-    content: '● '; /* 黒丸を追加 */
+    content: '● ';
     color: var(--subtle-text-color);
 }
 
-/* 必要に応じて、アイコンのサイズ調整も行う */
-.tooltip img {
-    vertical-align: middle;
-    margin-right: 5px;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 20px;
+        min-height: calc(100vh - 20px);
+    }
+    h1 {
+        font-size: 1.8em;
+    }
+    h2 {
+        font-size: 1.2em;
+    }
+    .legend {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .station-name {
+        font-size: 1em;
+        left: 15px;
+        top: calc(50% - 20px);
+    }
+    .station-icon-wrapper {
+        left: 15px;
+        top: calc(50% + 5px);
+    }
+    .train {
+        width: 40px;
+        height: 40px;
+    }
+    .train img {
+        width: 28px;
+        height: 28px;
+    }
+    .train-status-overlay {
+        font-size: 1em;
+        top: -15px;
+    }
+    .tooltip {
+        min-width: unset;
+        width: 90%;
+        left: 5% !important; /* 強制的に中央寄せ */
+        transform: none !important;
+        top: auto !important;
+        bottom: 10px; /* 画面下部に固定 */
+        right: 5%;
+        white-space: normal;
+    }
+    .tooltip.active {
+        transform: none; /* 下からスライドアップ */
+    }
 }

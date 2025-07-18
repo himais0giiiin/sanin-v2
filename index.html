@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>列車走行位置 (山陰本線)</title>
+    <title>山陰本線 列車走行位置</title>
+    <!-- Interフォントをインポート -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,13 +13,15 @@
     <div class="container">
         <header>
             <h1>山陰本線 列車走行位置</h1>
-            <h1>(下関 - 滝部)</h1>
+            <h2>(下関 - 滝部)</h2>
             <div id="current-time">--:--:--</div>
         </header>
         
-        <div id="announcements-board"></div>
+        <!-- お知らせボード -->
+        <div id="announcements-board" class="card announcements-card"></div>
 
-        <div class="legend">
+        <!-- 凡例 -->
+        <div class="legend card">
             <div class="legend-item">
                 <div class="legend-icon up"></div>
                 <span>上り (滝部方面)</span>
@@ -31,21 +35,29 @@
                 <span>乗降中</span>
             </div>
             <div class="legend-item">
-                <div class="legend-icon stopped">×</div>
-                <span>停車中</span>
+                <div class="legend-icon stopped"></div>
+                <span>運行支障</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon substitute"></div>
+                <span>代行輸送</span>
             </div>
         </div>
+
+        <!-- 列車ガイドラッパー -->
         <div id="train-guide-wrapper">
             <div id="track"></div>
             <div id="station-list"></div>
-            <div id="suspension-list"></div>
+            <div id="suspension-list"></div> <!-- 運休・お知らせ範囲表示用 -->
             <div id="train-list"></div>
+            <!-- 山陽線分岐 -->
             <div id="sanyo-line-branch" class="sanyo-line-branch">
                 <span class="sanyo-line-label">山陽線</span>
             </div>
         </div>
     </div>
 
+    <!-- ツールチップ -->
     <div id="tooltip" class="tooltip"></div>
 
     <script src="script.js"></script>

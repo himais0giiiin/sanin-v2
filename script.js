@@ -6,13 +6,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const currentTimeDiv = document.getElementById('current-time');
     const announcementsDiv = document.getElementById('announcements-board');
     const tooltip = document.getElementById('tooltip');
-    const legendWaitingIcon = document.querySelector('.legend-icon.waiting');
     const legendUpIcon = document.querySelector('.legend-icon.up');
     const legendDownIcon = document.querySelector('.legend-icon.down');
+    const legendWaitingIcon = document.querySelector('.legend-icon.waiting');
     const legendStoppedIcon = document.querySelector('.legend-icon.stopped');
+    const legendSubstituteIcon = document.querySelector('.legend-icon.substitute'); // 代行輸送の凡例
     const sanyoLineBranch = document.getElementById('sanyo-line-branch');
 
     // 画像パスの定義
+    // これらの画像ファイルが 'images/' ディレクトリに存在することを前提としています。
+    // もし画像が見つからない場合、アイコンが表示されないことがあります。
     const imagePaths = {
         up: 'images/up_arrow.png',
         down: 'images/down_arrow.png',
@@ -29,9 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 凡例アイコンを画像に置き換え
     legendUpIcon.innerHTML = `<img src="${imagePaths.up}" alt="上り" style="width: 25px; height: 25px;">`;
     legendDownIcon.innerHTML = `<img src="${imagePaths.down}" alt="下り" style="width: 25px; height: 25px;">`;
-    legendWaitingIcon.innerHTML = `<img src="${imagePaths.waiting}" alt="停車中(定刻)" style="width: 25px; height: 25px;">`;
-    legendStoppedIcon.innerHTML = `<img src="${imagePaths.stopped}" alt="停車中(支障)" style="width: 25px; height: 25px;">`;
-
+    legendWaitingIcon.innerHTML = `<img src="${imagePaths.waiting}" alt="乗降中" style="width: 25px; height: 25px;">`;
+    legendStoppedIcon.innerHTML = `<img src="${imagePaths.stopped}" alt="運行支障" style="width: 25px; height: 25px;">`;
+    legendSubstituteIcon.innerHTML = `<img src="${imagePaths.substitute_down}" alt="代行輸送" style="width: 25px; height: 25px;">`; // 代行輸送は下りバスアイコンを例に
 
     // --- データ定義 ---
     const announcements = [
@@ -54,21 +57,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     ];
 
     const stations = [
-        { id: 0, name: '下関', iconUrl: 'images/sanyo.png', stationCode: '山陽線' }, // 例: アイコンURLを追加
-        { id: 1, name: '幡生', iconUrl: 'images/sanin-yo.png', stationCode: '山陽線/山陰本線' },
-        { id: 2, name: '綾羅木', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 3, name: '梶栗郷台地', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 4, name: '安岡', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 5, name: '福江', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 6, name: '吉見', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 7, name: '梅ヶ峠', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 8, name: '黒井村', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 9, name: '川棚温泉', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 10, name: '小串', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 11, name: '湯玉', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 12, name: '宇賀本郷', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 13, name: '長門二見', iconUrl: 'images/sanin.png', stationCode: '山陰本線' },
-        { id: 14, name: '滝部', iconUrl: 'images/sanin.png', stationCode: '山陰本線' }
+        { id: 0, name: '下関', iconUrl: 'images/sanyo.png' },
+        { id: 1, name: '幡生', iconUrl: 'images/sanin-yo.png' },
+        { id: 2, name: '綾羅木', iconUrl: 'images/sanin.png' },
+        { id: 3, name: '梶栗郷台地', iconUrl: 'images/sanin.png' },
+        { id: 4, name: '安岡', iconUrl: 'images/sanin.png' },
+        { id: 5, name: '福江', iconUrl: 'images/sanin.png' },
+        { id: 6, name: '吉見', iconUrl: 'images/sanin.png' },
+        { id: 7, name: '梅ヶ峠', iconUrl: 'images/sanin.png' },
+        { id: 8, name: '黒井村', iconUrl: 'images/sanin.png' },
+        { id: 9, name: '川棚温泉', iconUrl: 'images/sanin.png' },
+        { id: 10, name: '小串', iconUrl: 'images/sanin.png' },
+        { id: 11, name: '湯玉', iconUrl: 'images/sanin.png' },
+        { id: 12, name: '宇賀本郷', iconUrl: 'images/sanin.png' },
+        { id: 13, name: '長門二見', iconUrl: 'images/sanin.png' },
+        { id: 14, name: '滝部', iconUrl: 'images/sanin.png' }
     ];
 
     // NEW: 乗りやすさ指標の定義
@@ -86,17 +89,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         1: 'comfort-value-empty',
         2: 'comfort-value-slightly-crowded',
         3: 'comfort-value-crowded',
-        4: 'comfort-value-very-crowded'
+        4: 'comfort-value-very-crowded',
+        // comfortIndexが未定義の場合
+        undefined: 'comfort-value-unknown'
     };
 
     // NEW: 全体の列車進行速度を調整する変数 (パーセンテージで指定)
     // 例: 100 = 通常速度, 50 = 半分の速度 (徐行運転)
-    let globalSlowOperationPercentage = 33; // デフォルトは通常速度
+    let globalSlowOperationPercentage = 100; // デフォルトは通常速度
 
-    // 列車時刻表データ (script.js に直接記述)
+    // 列車時刻表データ (ユーザー提供のデータ)
     const trainSchedules = [
         /// Takibe to Shimonoseki
-
         {"trainId":"821R","type":"代行輸送","direction":"down","destination":"小串","delayMinutes":0,"timetable":[{"stationId":14,"departure":"06:35"},{"stationId":13,"arrival":"06:42","departure":"06:43"},{"stationId":12,"arrival":"06:47","departure":"06:48"},{"stationId":11,"arrival":"06:51","departure":"06:52"},{"stationId":10,"arrival":"07:00"}]},
         {"trainId":"823R","type":"代行輸送","direction":"down","destination":"小串","delayMinutes":0,"timetable":[{"stationId":14,"departure":"06:57"},{"stationId":13,"arrival":"07:04","departure":"07:05"},{"stationId":12,"arrival":"07:09","departure":"07:10"},{"stationId":11,"arrival":"07:13","departure":"07:14"},{"stationId":10,"arrival":"07:22"}]},
         {"trainId":"1825D","type":"普通","direction":"down","destination":"下関","delayMinutes":0,"timetable":[{"stationId":10,"departure":"06:58"},{"stationId":9,"arrival":"07:05","departure":"07:06"},{"stationId":8,"arrival":"07:13","departure":"07:14"},{"stationId":7,"arrival":"07:17","departure":"07:18"},{"stationId":6,"arrival":"07:25","departure":"07:26"},{"stationId":5,"arrival":"07:34","departure":"07:35"},{"stationId":4,"arrival":"07:38","departure":"07:39"},{"stationId":3,"arrival":"07:44","departure":"07:45"},{"stationId":2,"arrival":"07:49","departure":"07:50"},{"stationId":1,"arrival":"07:55","departure":"07:56"},{"stationId":0,"arrival":"07:59"}]},
@@ -144,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {"trainId":"830D","type":"普通","direction":"up","destination":"小串","delayMinutes":0,"timetable":[{"stationId":0,"departure":"13:14"},{"stationId":1,"arrival":"13:18","departure":"13:19"},{"stationId":2,"arrival":"13:24","departure":"13:25"},{"stationId":3,"arrival":"13:26","departure":"13:27"},{"stationId":4,"arrival":"13:29","departure":"13:30"},{"stationId":5,"arrival":"13:33","departure":"13:34"},{"stationId":6,"arrival":"13:37","departure":"13:38"},{"stationId":7,"arrival":"13:43","departure":"13:44"},{"stationId":8,"arrival":"13:48","departure":"13:49"},{"stationId":9,"arrival":"13:52","departure":"13:53"},{"stationId":10,"arrival":"13:57"}]},
         {"trainId":"1830D","type":"普通","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":0,"departure":"14:31"},{"stationId":1,"arrival":"14:36","departure":"14:37"},{"stationId":2,"arrival":"14:41","departure":"14:42"},{"stationId":3,"arrival":"14:43","departure":"14:44"},{"stationId":4,"arrival":"14:46","departure":"14:47"},{"stationId":5,"arrival":"14:50","departure":"14:51"},{"stationId":6,"arrival":"14:54","departure":"14:55"},{"stationId":7,"arrival":"15:00","departure":"15:01"},{"stationId":8,"arrival":"15:05","departure":"15:06"},{"stationId":9,"arrival":"15:09","departure":"15:10"},{"stationId":10,"arrival":"15:13","departure":"15:14"},{"stationId":11,"arrival":"15:41","departure":"15:42"},{"stationId":12,"arrival":"15:45","departure":"15:46"},{"stationId":13,"arrival":"15:53","departure":"15:54"},{"stationId":14,"arrival":"16:02"}]},
         {"trainId":"1832D","type":"普通","direction":"up","destination":"小串","delayMinutes":0,"timetable":[{"stationId":0,"departure":"15:37"},{"stationId":1,"arrival":"15:41","departure":"15:42"},{"stationId":2,"arrival":"15:46","departure":"15:47"},{"stationId":3,"arrival":"15:49","departure":"15:50"},{"stationId":4,"arrival":"15:52","departure":"15:53"},{"stationId":5,"arrival":"15:56","departure":"15:57"},{"stationId":6,"arrival":"16:00","departure":"16:01"},{"stationId":7,"arrival":"16:06","departure":"16:07"},{"stationId":8,"arrival":"16:11","departure":"16:12"},{"stationId":9,"arrival":"16:15","departure":"16:16"},{"stationId":10,"arrival":"16:19"}]},
-        {"trainId":"1834D","type":"普通","direction":"up","destination":"小串","delayMinutes":29,"timetable":[{"stationId":0,"departure":"16:48"},{"stationId":1,"arrival":"16:53","departure":"16:54"},{"stationId":2,"arrival":"16:58","departure":"16:59"},{"stationId":3,"arrival":"17:01","departure":"17:02"},{"stationId":4,"arrival":"17:04","departure":"17:05"},{"stationId":5,"arrival":"17:08","departure":"17:09"},{"stationId":6,"arrival":"17:13","departure":"17:14"},{"stationId":7,"arrival":"17:18","departure":"17:19"},{"stationId":8,"arrival":"17:23","departure":"17:24"},{"stationId":9,"arrival":"17:29","departure":"17:30"},{"stationId":10,"arrival":"17:34"}]},
+        {"trainId":"1834D","type":"普通","direction":"up","destination":"小串","delayMinutes":47,"timetable":[{"stationId":0,"departure":"16:48"},{"stationId":1,"arrival":"16:53","departure":"16:54"},{"stationId":2,"arrival":"16:58","departure":"16:59"},{"stationId":3,"arrival":"17:01","departure":"17:02"},{"stationId":4,"arrival":"17:04","departure":"17:05"},{"stationId":5,"arrival":"17:08","departure":"17:09"},{"stationId":6,"arrival":"17:13","departure":"17:14"},{"stationId":7,"arrival":"17:18","departure":"17:19"},{"stationId":8,"arrival":"17:23","departure":"17:24"},{"stationId":9,"arrival":"17:29","departure":"17:30"},{"stationId":10,"arrival":"17:34"}]},
         {"trainId":"1836D","type":"普通","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":0,"departure":"16:11"},{"stationId":1,"arrival":"16:16","departure":"16:17"},{"stationId":2,"arrival":"16:21","departure":"16:22"},{"stationId":3,"arrival":"16:23","departure":"16:24"},{"stationId":4,"arrival":"16:26","departure":"16:27"},{"stationId":5,"arrival":"16:30","departure":"16:31"},{"stationId":6,"arrival":"16:34","departure":"16:35"},{"stationId":7,"arrival":"16:40","departure":"16:41"},{"stationId":8,"arrival":"16:45","departure":"16:46"},{"stationId":9,"arrival":"16:49","departure":"16:50"},{"stationId":10,"arrival":"16:53","departure":"16:54"},{"stationId":11,"arrival":"17:02","departure":"17:03"},{"stationId":12,"arrival":"17:06","departure":"17:07"},{"stationId":13,"arrival":"17:14","departure":"17:15"},{"stationId":14,"arrival":"17:22"}]},
         {"trainId":"1838D","type":"普通","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":0,"departure":"17:26"},{"stationId":1,"arrival":"17:30","departure":"17:31"},{"stationId":2,"arrival":"17:36","departure":"17:37"},{"stationId":3,"arrival":"17:39","departure":"17:40"},{"stationId":4,"arrival":"17:42","departure":"17:43"},{"stationId":5,"arrival":"17:48","departure":"17:49"},{"stationId":6,"arrival":"17:53","departure":"17:54"},{"stationId":7,"arrival":"17:56","departure":"17:57"},{"stationId":8,"arrival":"18:03","departure":"18:04"},{"stationId":9,"arrival":"18:08","departure":"18:09"},{"stationId":10,"arrival":"18:13","departure":"18:14"},{"stationId":11,"arrival":"18:21","departure":"18:22"},{"stationId":12,"arrival":"18:26","departure":"18:27"},{"stationId":13,"arrival":"18:34","departure":"18:35"},{"stationId":14,"arrival":"18:42"}]},
         {"trainId":"832D","type":"普通","direction":"up","destination":"小串","delayMinutes":0,"timetable":[{"stationId":0,"departure":"18:04"},{"stationId":1,"arrival":"18:09","departure":"18:10"},{"stationId":2,"arrival":"18:14","departure":"18:15"},{"stationId":3,"arrival":"18:17","departure":"18:18"},{"stationId":4,"arrival":"18:20","departure":"18:21"},{"stationId":5,"arrival":"18:27","departure":"18:28"},{"stationId":6,"arrival":"18:31","departure":"18:32"},{"stationId":7,"arrival":"18:37","departure":"18:38"},{"stationId":8,"arrival":"18:42","departure":"18:43"},{"stationId":9,"arrival":"18:46","departure":"18:47"},{"stationId":10,"arrival":"18:51"}]},
@@ -158,8 +162,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         {"trainId":"840R","type":"代行輸送","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":10,"departure":"11:24"},{"stationId":11,"arrival":"11:33","departure":"11:34"},{"stationId":12,"arrival":"11:37","departure":"11:38"},{"stationId":13,"arrival":"11:42","departure":"11:43"},{"stationId":14,"arrival":"11:49"}]},
         {"trainId":"840R","type":"代行輸送","direction":"up","destination":"滝部","delayMinutes":0,"timetable":[{"stationId":10,"departure":"13:00"},{"stationId":11,"arrival":"13:09","departure":"13:10"},{"stationId":12,"arrival":"13:13","departure":"13:14"},{"stationId":13,"arrival":"13:18","departure":"13:19"},{"stationId":14,"arrival":"13:25"}]},
     
-    
-    // テスト用：午前0時台の列車 (下関方面)
+        // テスト用：午前0時台の列車 (下関方面)
         {"trainId":"T001D","type":"普通","direction":"down","destination":"下関","delayMinutes":0,"timetable":[
             {"stationId":14,"departure":"00:05"}, // 滝部発
             {"stationId":13,"arrival":"00:12","departure":"00:13"}, // 長門二見
@@ -179,9 +182,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             ]},
     ];
 
+    // 各列車にランダムな混雑度を割り当てる (デモンストレーション用)
+    trainSchedules.forEach(train => {
+        train.comfortIndex = Math.floor(Math.random() * comfortLevels.length); // 0から4までの整数
+    });
 
-    // console.log('列車時刻表データが直接スクリプトに記述されました:', trainSchedules);
-
+    // Global variable to keep track of the currently active tooltip's trigger element
+    let activeTooltipElement = null;
 
     // --- ヘルパー関数 ---
     function parseTime(timeStr) {
@@ -192,18 +199,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return date;
     }
 
-    function isSectionSuspendedNow(section, now) {
+    function isSectionActiveNow(section, now) {
         if (!section.startTime || !section.endTime) return true;
-        return now >= parseTime(section.startTime) && now < parseTime(section.endTime);
+        const sectionStartTime = parseTime(section.startTime);
+        const sectionEndTime = parseTime(section.endTime);
+        return now >= sectionStartTime && now < sectionEndTime;
     }
-
-    // デバイスがモバイルかどうかを判定するヘルパー関数 (今回はイベントリスナーの分岐には使用しないが、残しておく)
-    function isMobileDevice() {
-        return /Mobi|Android/i.test(navigator.userAgent);
-    }
-
-    // Global variable to keep track of the currently active tooltip's trigger element
-    let activeTooltipElement = null;
 
     // --- 描画関数 ---
     function renderAnnouncements() {
@@ -216,12 +217,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 let altText = '';
                 if (info.type === 'suspended') {
                     iconSrc = imagePaths.suspended_info;
-                    altText = '運休';
+                    altText = '運休情報';
                 } else {
                     iconSrc = imagePaths.info;
                     altText = 'お知らせ';
                 }
-                item.innerHTML = `<div class="announcement-icon"><img src="${iconSrc}" alt="${altText}" style="width: 16px; height: 16px;"></div><span>${info.message}</span>`;
+                item.innerHTML = `<div class="announcement-icon"><img src="${iconSrc}" alt="${altText}"></div><span>${info.message}</span>`;
                 announcementsDiv.appendChild(item);
             });
         }
@@ -257,13 +258,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 stationDiv.appendChild(iconWrapperDiv);
 
                 // 駅アイコンにツールチップ表示機能を追加 (クリックで表示、他の場所をクリックで非表示)
-                const tooltipContent = `<b>駅名:</b> ${station.name}<br><b>乗入れ路線:</b> ${station.stationCode || station.id}`;
+                const tooltipContent = `
+                    <h3>駅情報</h3>
+                    <div class="sub-text">駅名と乗入れ路線</div>
+                    <p><b>駅名:</b> ${station.name}</p>
+                    <p><b>乗入れ路線:</b> ${station.stationCode || '山陰本線'}</p>
+                    <div class="disclaimer">● 実際の情報と異なる場合があります</div>
+                `;
 
                 iconWrapperDiv.addEventListener('click', (e) => {
                     e.stopPropagation(); // イベントの伝播を停止して、ドキュメント全体のクリックイベントによるツールチップ非表示を防ぐ
                     showTooltip(e.target, tooltipContent);
                 });
-                // mouseover/mouseout は削除
             }
 
             stationListDiv.appendChild(stationDiv);
@@ -278,9 +284,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderSuspendedSections(now) {
-        suspensionListDiv.innerHTML = '';
+        suspensionListDiv.innerHTML = ''; // 既存のセクションをクリア
+
+        // 運休区間をレンダリング
         suspendedSections.forEach(section => {
-            if (!isSectionSuspendedNow(section, now)) return;
+            if (!isSectionActiveNow(section, now)) return;
             const fromStationElem = document.getElementById(`station-${section.fromStationId}`);
             const toStationElem = document.getElementById(`station-${section.toStationId}`);
             if (!fromStationElem || !toStationElem) return;
@@ -290,45 +298,51 @@ document.addEventListener('DOMContentLoaded', async () => {
             suspensionDiv.className = 'suspended-section';
             suspensionDiv.style.top = `${topY}px`;
             suspensionDiv.style.height = `${bottomY - topY}px`;
-            const tooltipContent = `<b>運休区間:</b> ${stations.find(s=>s.id === section.fromStationId).name}～${stations.find(s=>s.id === section.toStationId).name}<br><b>理由:</b> ${section.reason}`;
+            const tooltipContent = `
+                <h3>運休区間</h3>
+                <div class="sub-text">運行見合わせ情報</div>
+                <p><b>区間:</b> ${stations.find(s=>s.id === section.fromStationId).name}～${stations.find(s=>s.id === section.toStationId).name}</p>
+                <p><b>理由:</b> ${section.reason}</p>
+                <div class="disclaimer">● 実際の情報と異なる場合があります</div>
+            `;
             suspensionDiv.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showTooltip(e.target, tooltipContent);
             });
             suspensionListDiv.appendChild(suspensionDiv);
         });
-    }
 
-    // NEW: お知らせ範囲のレンダリング関数
-    function renderInfoRangeSections(now) {
-        const infoRangeListDiv = document.getElementById('suspension-list'); // suspension-listを再利用
+        // お知らせ範囲をレンダリング
         infoRangeSections.forEach(section => {
-            // 時間指定がある場合は現在時刻でフィルタリング
-            if (section.startTime && section.endTime && !isSectionSuspendedNow(section, now)) {
-                return;
-            }
+            if (!isSectionActiveNow(section, now)) return;
             const fromStationElem = document.getElementById(`station-${section.fromStationId}`);
             const toStationElem = document.getElementById(`station-${section.toStationId}`);
             if (!fromStationElem || !toStationElem) return;
             const topY = fromStationElem.offsetTop + fromStationElem.offsetHeight / 2;
             const bottomY = toStationElem.offsetTop + toStationElem.offsetHeight / 2;
             const infoRangeDiv = document.createElement('div');
-            infoRangeDiv.className = 'info-range-section'; // 新しいクラスを適用
+            infoRangeDiv.className = 'info-range-section';
             infoRangeDiv.style.top = `${topY}px`;
             infoRangeDiv.style.height = `${bottomY - topY}px`;
-            const tooltipContent = `<b>お知らせ区間:</b> ${stations.find(s=>s.id === section.fromStationId).name}～${stations.find(s=>s.id === section.toStationId).name}<br><b>内容:</b> ${section.reason}`;
+            const tooltipContent = `
+                <h3>お知らせ区間</h3>
+                <div class="sub-text">運行に関する注意情報</div>
+                <p><b>区間:</b> ${stations.find(s=>s.id === section.fromStationId).name}～${stations.find(s=>s.id === section.toStationId).name}</p>
+                <p><b>内容:</b> ${section.reason}</p>
+                <div class="disclaimer">● 実際の情報と異なる場合があります</div>
+            `;
             infoRangeDiv.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showTooltip(e.target, tooltipContent);
             });
-            infoRangeListDiv.appendChild(infoRangeDiv);
+            suspensionListDiv.appendChild(infoRangeDiv);
         });
     }
 
     // --- ツールチップ関連 ---
     function showTooltip(targetElement, contentHtml) {
         // 同じ要素がクリックされた場合、ツールチップを非表示にする (トグル動作)
-        if (activeTooltipElement === targetElement && tooltip.style.display === 'block') {
+        if (activeTooltipElement === targetElement && tooltip.classList.contains('active')) {
             hideTooltip();
             return;
         }
@@ -339,31 +353,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         tooltip.innerHTML = contentHtml;
-        tooltip.style.visibility = 'hidden'; // サイズ測定のために一時的に非表示
-        tooltip.style.display = 'block';     // サイズ測定のためにブロック要素にする
+        tooltip.style.display = 'block'; // サイズ測定のためにブロック要素にする
+        tooltip.classList.add('active'); // アニメーションクラスを追加
 
         const targetRect = targetElement.getBoundingClientRect();
         const tooltipRect = tooltip.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
 
-        let top = targetRect.top - tooltipRect.height - 10;
+        let top = targetRect.top - tooltipRect.height - 15; // ターゲットの上15px
         let left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
 
         // ツールチップが画面上部からはみ出す場合
-        if (top < 10) top = targetRect.bottom + 10;
+        if (top < 10) {
+            top = targetRect.bottom + 15; // ターゲットの下15px
+        }
         // ツールチップが画面左右からはみ出す場合
-        if (left < 10) left = 10;
-        else if (left + tooltipRect.width > viewportWidth - 10) left = viewportWidth - tooltipRect.width - 10;
+        if (left < 10) {
+            left = 10;
+        } else if (left + tooltipRect.width > viewportWidth - 10) {
+            left = viewportWidth - tooltipRect.width - 10;
+        }
+        // ツールチップが画面下部からはみ出す場合 (モバイル対応で下部に固定するため、デスクトップでは上部優先)
+        if (top + tooltipRect.height > viewportHeight - 10 && top > targetRect.top) {
+            top = targetRect.top - tooltipRect.height - 15; // 再度上を試す
+            if (top < 10) top = 10; // それでもはみ出すなら上端に固定
+        }
 
         tooltip.style.top = `${top}px`;
         tooltip.style.left = `${left}px`;
-        tooltip.style.visibility = 'visible'; // 位置調整後に表示
-
+        
         activeTooltipElement = targetElement; // 現在のトリガー要素を記録
     }
 
     function hideTooltip() {
-        tooltip.style.display = 'none';
+        tooltip.classList.remove('active'); // アニメーションクラスを削除
+        // transitionが完了してからdisplayをnoneにする
+        tooltip.addEventListener('transitionend', function handler() {
+            if (!tooltip.classList.contains('active')) { // activeクラスがなければdisplay:noneにする
+                tooltip.style.display = 'none';
+                tooltip.removeEventListener('transitionend', handler);
+            }
+        });
         activeTooltipElement = null; // アクティブ要素をクリア
     }
 
@@ -380,58 +411,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         const now = new Date();
         // デバッグ用: now.setHours(7, 48, 30); // 特定の時刻でテストする場合はコメントを解除
         currentTimeDiv.textContent = now.toLocaleTimeString('ja-JP');
-        trainListDiv.innerHTML = '';
-        renderSuspendedSections(now);
-        renderInfoRangeSections(now); // NEW: お知らせ範囲のレンダリングを呼び出す
+        trainListDiv.innerHTML = ''; // 列車リストをクリア
+        renderSuspendedSections(now); // 運休・お知らせ範囲を再描画
 
         // NEW: 全体速度調整ファクターを計算
         const effectiveSpeedFactor = globalSlowOperationPercentage / 100;
-
-        // console.log('現在の時刻 (now):', now.toLocaleTimeString('ja-JP'));
-        // console.log('処理対象の列車数:', trainSchedules.length);
 
         trainSchedules.forEach(train => {
             // trainTimeは遅延を考慮した時刻。列車の位置計算に使用。
             const trainTime = new Date(now.getTime() - train.delayMinutes * 60 * 1000);
             
-            // console.log(`--- 列車ID: ${train.trainId} (遅延: ${train.delayMinutes}分) ---`);
-            // console.log(`列車時刻 (trainTime): ${trainTime.toLocaleTimeString('ja-JP')}`);
+            let trainRendered = false; // 現在の列車が描画されたかどうかのフラグ
 
             // 1. 運行支障の確認 (最優先)
             const issue = operationalIssues.find(p => p.trainId === train.trainId);
             if (issue) {
                 const stationElem = document.getElementById(`station-${issue.stationId}`);
                 if (!stationElem) {
-                    // console.warn(`駅要素が見つかりません: station-${issue.stationId}`);
+                    console.warn(`駅要素が見つかりません: station-${issue.stationId}`);
                     return;
                 }
                 const trainY = stationElem.offsetTop + stationElem.offsetHeight / 2;
                 const trainDiv = document.createElement('div');
                 trainDiv.className = 'train stopped-image';
-                trainDiv.innerHTML = `<img src="${imagePaths.stopped}" alt="停車中(支障)" style="width: 25px; height: 25px;">`;
-                trainDiv.style.top = `${trainY - 12.5 + 5}px`; // +5pxで微調整
-                
-                // 運行支障時のツールチップ内容を画像風に生成
+                trainDiv.innerHTML = `<img src="${imagePaths.stopped}" alt="運行支障">`;
+                trainDiv.style.top = `${trainY - 22.5}px`; // 列車アイコンの高さの半分を引く
+
+                // 運行支障時のツールチップ内容を生成
                 const tooltipContentHtml = `
                     <h3>運行状況</h3>
-                    <div class="sub-text">並びは発着順ではありません</div>
+                    <div class="sub-text">運行支障発生中</div>
                     <div class="train-info-section">
                         <span class="train-type-label">${train.type}</span>
                         <div class="train-main-info">${stations.find(s=>s.id === issue.stationId).name}駅 <span>停車中</span></div>
                     </div>
                     <div class="delay-status" style="color: var(--stop-color);">運行支障: ${issue.reason}</div>
-                    ${train.comfortIndex !== undefined && comfortLevels[train.comfortIndex] ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
+                    ${train.comfortIndex !== undefined ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
                     <div class="disclaimer">● 実際の列車情報と異なる場合があります</div>
                 `;
                 
-                // イベントリスナーの追加 (クリックで表示、他の場所をクリックで非表示)
                 trainDiv.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(e.target, tooltipContentHtml); });
                 trainListDiv.appendChild(trainDiv);
-                // console.log(`列車 ${train.trainId}: 運行支障により表示 (駅ID: ${issue.stationId})`);
+                trainRendered = true;
                 return; // 支障がある場合はここで終了
             }
-
-            let trainRendered = false; // 現在の列車が描画されたかどうかのフラグ
 
             // 2. 時刻表を走査して列車の状態と位置を決定
             for (let i = 0; i < train.timetable.length; i++) {
@@ -441,40 +464,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const arrivalTime = parseTime(currentStop.arrival);
                 const departureTime = parseTime(currentStop.departure);
 
-                // --- 状況判定とアイコン表示ロジック ---
-
                 // A. 終着駅に到着済み (代行輸送を除く)
                 if (i === train.timetable.length - 1 && arrivalTime && train.type !== '代行輸送') {
                     const oneMinuteAfterArrival = new Date(arrivalTime.getTime() + 1 * 60 * 1000);
-                    // console.log(`  終着駅判定 - 列車ID: ${train.trainId}, 到着時刻: ${arrivalTime.toLocaleTimeString('ja-JP')}, 1分後: ${oneMinuteAfterArrival.toLocaleTimeString('ja-JP')}`);
                     if (now >= arrivalTime && now <= oneMinuteAfterArrival) {
                         const stationElem = document.getElementById(`station-${currentStop.stationId}`);
-                        if (!stationElem) {
-                            // console.warn(`  終着駅要素が見つかりません: station-${currentStop.stationId}`);
-                            continue;
-                        }
+                        if (!stationElem) continue;
                         const trainY = stationElem.offsetTop + stationElem.offsetHeight / 2;
                         const trainDiv = document.createElement('div');
                         trainDiv.className = 'train waiting-image';
-                        trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="停車中(定刻)" style="width: 25px; height: 25px;">`;
-                        trainDiv.style.top = `${trainY - 12.5 + 5}px`; // +5pxで微調整
-                        
-                        // 終着駅到着時のツールチップ内容を画像風に生成
+                        trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="乗降中">`;
+                        trainDiv.style.top = `${trainY - 22.5}px`;
+
                         const tooltipContentHtml = `
                             <h3>運行状況</h3>
-                            <div class="sub-text">並びは発着順ではありません</div>
+                            <div class="sub-text">終着駅到着</div>
                             <div class="train-info-section">
                                 <span class="train-type-label">${train.type}</span>
-                                <div class="train-main-info">${stations.find(s=>s.id === currentStop.stationId).name}駅 <span>到着済</span></div>
+                                <div class="train-main-info">${train.trainId} ${stations.find(s=>s.id === currentStop.stationId).name}駅 <span>到着済</span></div>
                             </div>
-                            ${train.comfortIndex !== undefined && comfortLevels[train.comfortIndex] ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
+                            ${train.comfortIndex !== undefined ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
                             <div class="disclaimer">● 実際の列車情報と異なる場合があります</div>
                         `;
                         
-                        // イベントリスナーの追加
                         trainDiv.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(e.target, tooltipContentHtml); });
                         trainListDiv.appendChild(trainDiv);
-                        // console.log(`列車 ${train.trainId}: 到着済 (駅ID: ${currentStop.stationId})`);
                         trainRendered = true;
                         break;
                     }
@@ -483,35 +497,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // B. 始発駅で発車待機中 (代行輸送を除く)
                 if (i === 0 && departureTime && train.type !== '代行輸送') {
                     const threeMinutesBeforeDeparture = new Date(departureTime.getTime() - 3 * 60 * 1000);
-                    // console.log(`  始発駅判定 - 列車ID: ${train.trainId}, 出発時刻: ${departureTime.toLocaleTimeString('ja-JP')}, 3分前: ${threeMinutesBeforeDeparture.toLocaleTimeString('ja-JP')}`);
                     if (now >= threeMinutesBeforeDeparture && now <= departureTime) {
                         const stationElem = document.getElementById(`station-${currentStop.stationId}`);
-                        if (!stationElem) {
-                            // console.warn(`  始発駅要素が見つかりません: station-${currentStop.stationId}`);
-                            continue;
-                        }
+                        if (!stationElem) continue;
                         const trainY = stationElem.offsetTop + stationElem.offsetHeight / 2;
                         const trainDiv = document.createElement('div');
                         trainDiv.className = 'train waiting-image';
-                        trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="停車中(定刻)" style="width: 25px; height: 25px;">`;
-                        trainDiv.style.top = `${trainY - 12.5 + 5}px`; // +5pxで微調整
-                        
-                        // 始発駅待機中のツールチップ内容を画像風に生成
+                        trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="乗降中">`;
+                        trainDiv.style.top = `${trainY - 22.5}px`;
+
                         const tooltipContentHtml = `
                             <h3>運行状況</h3>
-                            <div class="sub-text">並びは発着順ではありません</div>
+                            <div class="sub-text">始発駅発車待機中</div>
                             <div class="train-info-section">
                                 <span class="train-type-label">${train.type}</span>
-                                <div class="train-main-info">${stations.find(s=>s.id === currentStop.stationId).name}駅 <span>発車待機中</span></div>
+                                <div class="train-main-info">${train.trainId} ${stations.find(s=>s.id === currentStop.stationId).name}駅 <span>発車待機中</span></div>
                             </div>
-                            ${train.comfortIndex !== undefined && comfortLevels[train.comfortIndex] ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
+                            ${train.comfortIndex !== undefined ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
                             <div class="disclaimer">● 実際の列車情報と異なる場合があります</div>
                         `;
                         
-                        // イベントリスナーの追加
                         trainDiv.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(e.target, tooltipContentHtml); });
                         trainListDiv.appendChild(trainDiv);
-                        // console.log(`列車 ${train.trainId}: 発車待機中 (駅ID: ${currentStop.stationId})`);
                         trainRendered = true;
                         break;
                     }
@@ -520,32 +527,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // C. 駅で停車中 (通常の停車、上記A, B以外)
                 if (arrivalTime && departureTime && trainTime >= arrivalTime && trainTime < departureTime) {
                     const stationElem = document.getElementById(`station-${currentStop.stationId}`);
-                    if (!stationElem) {
-                        // console.warn(`  停車中駅要素が見つかりません: station-${currentStop.stationId}`);
-                        continue;
-                    }
+                    if (!stationElem) continue;
                     const trainY = stationElem.offsetTop + stationElem.offsetHeight / 2;
                     const trainDiv = document.createElement('div');
                     trainDiv.className = 'train waiting-image';
-                    trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="停車中(定刻)" style="width: 25px; height: 25px;">`;
-                    trainDiv.style.top = `${trainY - 12.5 + 5}px`; // +5pxで微調整
-                    
-                    // 駅停車中のツールチップ内容を画像風に生成
+                    trainDiv.innerHTML = `<img src="${imagePaths.waiting}" alt="乗降中">`;
+                    trainDiv.style.top = `${trainY - 22.5}px`;
+
                     const tooltipContentHtml = `
                         <h3>運行状況</h3>
-                        <div class="sub-text">並びは発着順ではありません</div>
+                        <div class="sub-text">駅停車中</div>
                         <div class="train-info-section">
                             <span class="train-type-label">${train.type}</span>
-                            <div class="train-main-info">${stations.find(s=>s.id === currentStop.stationId).name}駅 <span>停車中</span></div>
+                            <div class="train-main-info">${train.trainId} ${stations.find(s=>s.id === currentStop.stationId).name}駅 <span>停車中</span></div>
                         </div>
-                        ${train.comfortIndex !== undefined && comfortLevels[train.comfortIndex] ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
+                        ${train.comfortIndex !== undefined ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
                         <div class="disclaimer">● 実際の列車情報と異なる場合があります</div>
                     `;
                     
-                    // イベントリスナーの追加
                     trainDiv.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(e.target, tooltipContentHtml); });
                     trainListDiv.appendChild(trainDiv);
-                    // console.log(`列車 ${train.trainId}: 駅で停車中 (駅ID: ${currentStop.stationId})`);
                     trainRendered = true;
                     break;
                 }
@@ -554,9 +555,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (departureTime && nextStop) {
                     const nextArrivalTime = parseTime(nextStop.arrival);
                     if (nextArrivalTime && trainTime >= departureTime && trainTime < nextArrivalTime) {
-                        const isSuspended = suspendedSections.some(section => isSectionSuspendedNow(section, now) && [section.fromStationId, section.toStationId].sort((a,b)=>a-b).join() === [currentStop.stationId, nextStop.stationId].sort((a,b)=>a-b).join());
+                        const isSuspended = suspendedSections.some(section => isSectionActiveNow(section, now) && [section.fromStationId, section.toStationId].sort((a,b)=>a-b).join() === [currentStop.stationId, nextStop.stationId].sort((a,b)=>a-b).join());
                         if (isSuspended) {
-                            // console.log(`列車 ${train.trainId}: 運休区間を走行中のため表示されません。`);
+                            // 運休区間を走行中のため列車は表示しない
                             trainRendered = true;
                             break;
                         }
@@ -571,10 +572,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         const prevStationElem = document.getElementById(`station-${currentStop.stationId}`);
                         const nextStationElem = document.getElementById(`station-${nextStop.stationId}`);
-                        if (!prevStationElem || !nextStationElem) {
-                            // console.warn(`  駅間走行中 - 駅要素が見つかりません: prev-${currentStop.stationId}, next-${nextStop.stationId}`);
-                            continue;
-                        }
+                        if (!prevStationElem || !nextStationElem) continue;
 
                         const prevStationY = prevStationElem.offsetTop + prevStationElem.offsetHeight / 2;
                         const nextStationY = nextStationElem.offsetTop + nextStationElem.offsetHeight / 2;
@@ -594,7 +592,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             imgSrc = train.direction === 'up' ? imagePaths.substitute_up : imagePaths.substitute_down;
                             altText = `代行輸送 ${train.direction === 'up' ? '上り' : '下り'}`;
                             delayStatusText = '代行輸送中';
-                            delayStatusColor = 'var(--info-icon-color)'; // 代行輸送は青系
+                            delayStatusColor = 'var(--substitute-color)'; // 代行輸送は紫系
                         } else {
                             if (train.delayMinutes > 0) {
                                 delayStatusText = `${train.delayMinutes}分遅れ`;
@@ -614,7 +612,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 overlayClass = 'early'; // 早発時のオーバーレイクラス
                             } else {
                                 delayStatusText = '定刻通り';
-                                delayStatusColor = 'var(--up-train-color)'; // 定刻は上り/下りの色に合わせる
+                                delayStatusColor = train.direction === 'up' ? 'var(--up-train-color)' : 'var(--down-train-color)'; // 定刻は上り/下りの色に合わせる
                                 className += train.direction === 'up' ? ' up-image' : ' down-image';
                                 imgSrc = train.direction === 'up' ? imagePaths.up : imagePaths.down;
                                 altText = train.direction === 'up' ? '上り' : '下り';
@@ -625,37 +623,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                         trainDiv.className = className;
                         // innerHTMLにオーバーレイ要素を追加
                         trainDiv.innerHTML = `
-                            <img src="${imgSrc}" alt="${altText}" style="width: 25px; height: 25px;">
+                            <img src="${imgSrc}" alt="${altText}">
                             ${overlayText ? `<div class="train-status-overlay ${overlayClass}">${overlayText}</div>` : ''}
                         `;
-                        trainDiv.style.top = `${trainY - 12.5 + 5}px`; // +5pxで微調整
+                        trainDiv.style.top = `${trainY - 22.5}px`; // 列車アイコンの高さの半分を引く
                         
-                        // 駅間走行中のツールチップ内容を画像風に生成
+                        // 駅間走行中のツールチップ内容を生成
                         const tooltipContentHtml = `
                             <h3>運行状況</h3>
-                            <div class="sub-text">並びは発着順ではありません</div>
+                            <div class="sub-text">${stations.find(s=>s.id === currentStop.stationId).name} から ${stations.find(s=>s.id === nextStop.stationId).name} へ走行中</div>
                             <div class="train-info-section">
                                 <span class="train-type-label">${train.type}</span>
-                                <div class="train-main-info">${train.destination}<span>行き</span></div>
+                                <div class="train-main-info">${train.trainId} ${train.destination}<span>行き</span></div>
                             </div>
                             <div class="delay-status" style="color: ${delayStatusColor};">${delayStatusText}</div>
-                            ${train.comfortIndex !== undefined && comfortLevels[train.comfortIndex] ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
+                            ${train.comfortIndex !== undefined ? `<div class="comfort-index-section"><b>混雑度:</b> <span class="${comfortClassMap[train.comfortIndex]}">${comfortLevels[train.comfortIndex]}</span></div>` : ''}
                             ${nextStop.arrival ? `<div class="next-station-arrival">次駅 <span>${stations.find(s=>s.id === nextStop.stationId).name}駅</span> 到着予定: <span>${nextStop.arrival}</span></div>` : ''}
                             <div class="disclaimer">● 実際の列車情報と異なる場合があります</div>
                         `;
                         
-                        // イベントリスナーの追加
                         trainDiv.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(e.target, tooltipContentHtml); });
                         trainListDiv.appendChild(trainDiv);
-                        // console.log(`列車 ${train.trainId}: 駅間走行中 (${stations.find(s=>s.id === currentStop.stationId).name} -> ${stations.find(s=>s.id === nextStop.stationId).name})`);
                         trainRendered = true;
                         break;
                     }
                 }
-            }
-
-            if (!trainRendered) {
-                // console.log(`列車 ${train.trainId}: 現在の時刻では表示条件を満たしませんでした。`);
             }
         });
     }
@@ -664,5 +656,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderAnnouncements();
     renderStations();
     updatePositions();
-    setInterval(updatePositions, 5000);
+    setInterval(updatePositions, 5000); // 5秒ごとに更新
 });
