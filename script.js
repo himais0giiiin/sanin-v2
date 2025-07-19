@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const announcements = [
         {id: 'info2', type: 'info', message:"この走行位置は2025年度改正のダイヤに準拠しています。"},
         {id: 'info3', type: 'info', message:'遅延情報は、複数列車が10分以上遅延したときに反映されます。'},
-        {id: 'info4', type: 'suspended', message:'山陰線では、大雨のため黒井村駅～幡生駅間で徐行運転をしています。このため、列車に５～３０分の遅れがでています。'},
+        ///{id: 'info4', type: 'suspended', message:'山陰線では、大雨のため黒井村駅～幡生駅間で徐行運転をしています。このため、列車に５～３０分の遅れがでています。'},
     ];
     const operationalIssues = [
         //{ trainId: '449D', stationId: 6, reason: '車両の確認' }
