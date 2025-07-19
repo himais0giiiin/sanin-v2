@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ];
     // NEW: お知らせ範囲のデータ
     const infoRangeSections = [
-        { fromStationId: 0, toStationId: 10, reason: 'この区間は大雨のため、速度を落として運転しています。', startTime: '06:00', endTime: '23:00' },
+        ///{ fromStationId: 0, toStationId: 10, reason: 'この区間は大雨のため、速度を落として運転しています。', startTime: '06:00', endTime: '23:00' },
         //{ fromStationId: 1, toStationId: 3, reason: '幡生駅構内での車両点検のため、一部列車に遅れが発生する可能性があります。', startTime: '00:00', endTime: '23:59' }
     ];
 
